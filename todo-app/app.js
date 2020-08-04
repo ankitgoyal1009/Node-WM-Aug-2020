@@ -23,11 +23,18 @@ if (command === "add") {
 }
 if (command === "list") {
     console.log(chalk.greenBright.inverse("Listing all tasks"));
-}
 
+    const allTasks = tasks.fetchAllTasks();
+    for (const task of allTasks) {
+        console.log(chalk.green.inverse(`TaskName: ${task.taskName}, Desc: ${task.desc}`));
+        console.log();
+    }
+}
 if (command === "delete") {
 
     console.log(chalk.redBright.inverse("Delete a task"));
+    const taskName = yargs.argv.taskName;
+    tasks.deleteTask(taskName);
 }
 
 

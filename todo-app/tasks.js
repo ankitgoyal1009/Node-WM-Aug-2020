@@ -4,6 +4,7 @@ const fs = require('fs');
 let allTasks =[];
 
 readAllTasks();
+//console.log(allTasks);
 function readAllTasks(){
 
     try {
@@ -12,11 +13,8 @@ function readAllTasks(){
         allTasks = JSON.parse(data);
 
     } catch {
-
         //allTasks = [];
     }
-    
-
 }
 
 function saveTask(taskName, desc){
@@ -30,10 +28,20 @@ function saveTask(taskName, desc){
 
 function fetchAllTasks(){
 
+    return allTasks;
+
 }
 
 function deleteTask(taskName){
 
+    const index = allTasks.findIndex(item => item.taskName === taskName);
+    if(index === -1){
+        console.log("No Task Found");
+    }
+    else{
+        allTasks.splice(index, 2);
+        fs.writeFileSync("tasks.json", JSON.stringify(allTasks));
+    }
 }
 
 module.exports = {
