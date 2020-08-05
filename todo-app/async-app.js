@@ -24,16 +24,33 @@ yargs
             console.log(chalk.red.inverse("Error in save", err));
         });
     })
-    .command("list", "To List all tasks", (yargs) => {}, (args) => {
+    .command("list", "To List all tasks", (yargs) => {}, async (args) => {
 
         console.log(chalk.blackBright("List all tasks"));
-        var promise = tasks.fetchAllTasks();
-        promise.then((data) => {
-            console.log("List", data);
-        }, (err) => {
-            console.log("error")
-        })
+        // var promise = tasks.fetchAllTasks();
+        // promise.then((data) => {
+        //     console.log("List", data);
+        // }, (err) => {
+        //     console.log("error")
+        // })
+
+        try {
+            
+            const results = await tasks.fetchAllTasks();
+            for (const result of results) {
+                console.log(chalk.green(`TaskName: ${result.taskName}, Desc: ${result.desc}`));
+            }
+        } catch (error) {
+            console.log("List task error")
+        }
+    })
+    .command("delete", "To delete a task", (yargs) => {
+
+        yargs
+            .option("taskName", {alias: "t", demand: true});
+
+    }, (args) => {
+
 
     })
-    .command("delete", "To delete a task", (yargs) => {}, (args) => {})
     .argv;

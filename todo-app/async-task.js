@@ -46,7 +46,7 @@ function fetchAllTasks(){
 }
 
 function deleteTask(taskName){
-
+    
 }
 
 module.exports =  {
