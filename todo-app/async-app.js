@@ -5,9 +5,18 @@ const tasks = require("./async-task");
 
 console.log(chalk.blue("TODO Application"));
 
-//node app.js add --taskName CallOffice --description "Call Boss"
-//node app.js list
-//node app.js delete --taskName CallOffice
+//node async-app.js add --taskName CallOffice --description "Call Boss"
+//node async-app.js list
+//node async-app.js delete --taskName CallOffice
+
+tasks.tasksEmitter.on("error", (err) => {
+    console.log(chalk.red("Delete Error", err));
+})
+
+tasks.tasksEmitter.on("deleted", (taskName) => {
+    console.log(chalk.green("Deleted", taskName));
+})
+
 
 yargs
     .command("add", "To add a task", (yargs) => {
@@ -51,6 +60,9 @@ yargs
 
     }, (args) => {
 
+        console.log(chalk.redBright("Delete a task"));
+        const taskName = args.taskName;
+        tasks.deleteTask(taskName);
 
     })
     .argv;

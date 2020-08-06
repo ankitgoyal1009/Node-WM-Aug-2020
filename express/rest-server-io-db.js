@@ -94,20 +94,30 @@ app.get("/products", async (req, resp) => {
 
 });
 
-app.get("/products/:id", (req, resp) => {
+app.get("/products/:id", async(req, resp) => {
 
     const productId = req.params.id;
     console.log(productId)
-    if (productId) {
+    try {
+        if (productId) {
 
-        const index = products.findIndex(item => item.id == productId);
-        if (index != -1) {
-            resp.json(products[index]);
+            const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
+            const productColl = await client.db(databaseName).collection(collectionName);
+            const result = await productColl.findOne({id: parseInt(productId)});
+            if(result !== null){
+                resp.json(result);
+            }
+            else{
+                resp.status(404).end();
+            }
+            
         }
-        else {
-            resp.status(404).end();
-        }
+    } catch (error) {
+        
+        console.log(error);
+        resp.status(500).end();
     }
+    
 })
 app.post("/products", async (req, resp) => {
 
@@ -141,17 +151,23 @@ app.post("/products", async (req, resp) => {
 
 });
 
-app.delete("/products/:id", (req, resp) => {
+app.delete("/products/:id", async (req, resp) => {
 
     const id = req.params.id;
+    console.log("Id: ", id);
     try {
         if (id) {
 
             const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
             const productColl = await client.db(databaseName).collection(collectionName);
-            const result = await productColl.deleteOne({id: id});
-            if(result.deletedCount > 1){
+            const query = {id: parseInt(id)};
+            const result = await productColl.deleteOne(query);
+            console.log("Deleted Count: ", result.deletedCount);
+            if(result.deletedCount === 1){
                 resp.status(200).end();
+                for (const socket of allSockets) {
+                    socket.emit("productDeleted", product);
+                }
             }
             else{
                 resp.status(404).end()
@@ -162,9 +178,48 @@ app.delete("/products/:id", (req, resp) => {
         }
 
     } catch (error) {
+        console.log(error);
         resp.status(500).end()
     }
     
+
+});
+
+app.put("/products", async (req, resp) => {
+
+    const product = req.body;
+    try {
+        if (product) {
+
+            const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
+            const productColl = await client.db(databaseName).collection(collectionName);
+            const result = await productColl.updateOne({id: parseInt(product.id)}, {$set: product})
+            console.log("ModifiedCount: ", result.modifiedCount);
+            if(result.matchedCount == 0){
+                resp.status(404).end();
+                return;
+            }
+            if(result.modifiedCount === 1){
+                resp.status(200).end()
+                for (const socket of allSockets) {
+                    socket.emit("productUpdated", product);
+                }
+                return;
+            }
+            else{
+                resp.status(304).end()
+                return;
+            }
+        }
+        else {
+            resp.status(400).end();
+        }
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).end();
+    }
+
 
 });
 

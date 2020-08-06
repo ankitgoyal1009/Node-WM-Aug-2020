@@ -6,11 +6,13 @@
 ### Notes
 
 #### Express
-The Application deployed on the Heroku Cloud. The URL is mentioned below
+The Application is deployed on the Heroku Cloud. The URL is mentioned below
 
 > https://glacial-peak-33014.herokuapp.com/
 
-*To resolve the error the node_modules folder was deleted and every depedency in the package.json was installed one by one again.*
+> https://glacial-peak-33014.herokuapp.com/products
+
+*To resolve the error(for deploying on Heroku) the node_modules and package-lock.json folder was deleted and every depedency in the package.json was installed one by one again.*
 
     1. npm install express
     2. npm install cors
