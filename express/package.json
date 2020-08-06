@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "rest-server": "nodemon rest-server.js",
     "express-app": "nodemon express-app.js",
-    "rest-server-io": "nodemon rest-server-io.js"
+    "rest-server-io": "nodemon rest-server-io.js",
+    "rest-server-io-db": "nodemon rest-server-io-db.js",
+    "start" : "node rest-server-io.js"
   },
   "keywords": [],
   "author": "",
@@ -16,7 +18,7 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
-    "handlebars": "^4.7.6",
+    "mongodb": "^3.6.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {

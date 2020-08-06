@@ -13,6 +13,8 @@
 
         socket = io("http://localhost:9010");
         socket.on("connect", () => {
+
+            //socket.send("")
             console.log("connected the server");
 
             socket.on("message", (msg) => {

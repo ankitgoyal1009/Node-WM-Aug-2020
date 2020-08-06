@@ -1,6 +1,12 @@
 const fs = require('fs');
 const bodyParser = require('body-parser');
-var cors = require('cors');
+const cors = require('cors');
+const MongoClient = require('mongodb').MongoClient;
+
+//MongoDB
+const mongoURL = "mongodb://localhost:27017"
+const databaseName = "nodedb";
+const collectionName = "products";
 
 //Create the Server
 
@@ -36,20 +42,20 @@ initData();
 //app.use(bodyParser());
 
 app.use(cors())
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use("/", (req, resp, next) => {
 
-    console.log(`Request ${req.url} handled by the process: ${process.pid}` );
+    console.log(`Request ${req.url} handled by the process: ${process.pid}`);
     next();
 
 });
 
 app.get("/", (req, resp) => {
 
-    // for (let i = 0; i < 1_000_000_000; i++) {   
-    // }
+    for (let i = 0; i < 1_000_000_000; i++) {
+    }
     resp.writeHead(200, { "Content-Type": "text/html" });
     resp.write("<html><h2>Welcome to the REST Server</h2></html");
     resp.end();
@@ -71,9 +77,21 @@ app.get("/fetchMedia", (req, resp) => {
     readStream.pipe(resp);
 })
 
-app.get("/products", (req, resp) => {
+app.get("/products", async (req, resp) => {
 
-    resp.json(products);
+    try {
+
+        const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
+        const productColl = await client.db(databaseName).collection(collectionName);
+        const products = await productColl.find({}).toArray();
+        resp.json(products);
+        client.close();
+
+    } catch (error) {
+        console.log(error);
+        resp.status(500).end();
+    }
+
 });
 
 app.get("/products/:id", (req, resp) => {
@@ -91,50 +109,53 @@ app.get("/products/:id", (req, resp) => {
         }
     }
 })
-app.post("/products", (req, resp) => {
+app.post("/products", async (req, resp) => {
 
     const product = req.body;
     console.log("product in post", product);
-    if (product) {
+    try {
+        if (product) {
 
-        //Validation
-        const index = products.findIndex(item => item.id === product.id);
-
-        if (index === -1) {
-            products.push(product);
-
-            for (const socket of allSockets) {
-                socket.emit("productAdded", product);
+            const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
+            const productColl = await client.db(databaseName).collection(collectionName);
+            const result = await productColl.insertOne(product);
+            console.log(result.insertedCount);
+            if(result.insertedCount === 1){
+                resp.status(201).end()
+                for (const socket of allSockets) {
+                    socket.emit("productAdded", product);
+                }
             }
-
-            resp.status(201).end()
-            
+            else{
+                resp.status(400).end()
+            }
         }
-        else{
+        else {
             resp.status(400).end();
         }
 
-    }
-    else{
+    } catch (error) {
+        console.log(error);
         resp.status(500).end();
     }
+
 });
 
 app.delete("/products/:id", (req, resp) => {
 
     const id = req.params.id;
-    if(id){
+    if (id) {
 
         const index = products.findIndex(item => item.id == id);
-        if(index !== -1){
+        if (index !== -1) {
             products.splice(index, 1);
             resp.status(200).end();
         }
-        else{
+        else {
             resp.status(404).end();
         }
     }
-    else{
+    else {
         resp.status(500).end()
     }
 
@@ -142,7 +163,7 @@ app.delete("/products/:id", (req, resp) => {
 
 
 //Listen/ Start the server
-const PORT = process.env.PORT || 9010;
+const PORT = 9010;
 server.listen(PORT, () => {
     console.log(`REST API started at port: ${PORT} on process-id: ${process.pid}`)
 })
