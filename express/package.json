@@ -9,7 +9,8 @@
     "express-app": "nodemon express-app.js",
     "rest-server-io": "nodemon rest-server-io.js",
     "rest-server-io-db": "nodemon rest-server-io-db.js",
-    "start" : "node rest-server-io.js"
+    "rest-server-io-secure": "nodemon rest-server-io-secure.js",
+    "start": "node rest-server-io.js"
   },
   "keywords": [],
   "author": "",
@@ -18,10 +19,14 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-handlebars": "^5.1.0",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.6.0",
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
+  },
+  "engines": {
+    "node": "12.x"
   }
 }
