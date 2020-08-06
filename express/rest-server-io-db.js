@@ -144,20 +144,27 @@ app.post("/products", async (req, resp) => {
 app.delete("/products/:id", (req, resp) => {
 
     const id = req.params.id;
-    if (id) {
+    try {
+        if (id) {
 
-        const index = products.findIndex(item => item.id == id);
-        if (index !== -1) {
-            products.splice(index, 1);
-            resp.status(200).end();
+            const client = await MongoClient.connect(mongoURL, { useUnifiedTopology: true });
+            const productColl = await client.db(databaseName).collection(collectionName);
+            const result = await productColl.deleteOne({id: id});
+            if(result.deletedCount > 1){
+                resp.status(200).end();
+            }
+            else{
+                resp.status(404).end()
+            }
         }
         else {
-            resp.status(404).end();
+            resp.status(400).end()
         }
-    }
-    else {
+
+    } catch (error) {
         resp.status(500).end()
     }
+    
 
 });
 
