@@ -5,13 +5,19 @@
   "main": "http-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rest-server": "nodemon rest-server.js"
+    "rest-server": "nodemon rest-server.js",
+    "express-app": "nodemon express-app.js",
+    "rest-server-io": "nodemon rest-server-io.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1"
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-handlebars": "^5.1.0",
+    "handlebars": "^4.7.6",
+    "socket.io": "^2.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"

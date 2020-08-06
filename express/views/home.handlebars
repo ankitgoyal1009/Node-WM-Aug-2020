@@ -1,0 +1,52 @@
+<div>
+    <h2>Node Express Application</h2>
+    <p>Message: {{message}}</p>
+</div>
+
+<div id="products">
+
+</div>
+
+<script>
+
+    $(() => {
+
+        socket = io("http://localhost:9010");
+        socket.on("connect", () => {
+            console.log("connected the server");
+
+            socket.on("message", (msg) => {
+                console.log("Msg from server: ", msg);
+            });
+            socket.on("productAdded", (product) => {
+                console.log("Product Added: ", product);
+                var productsPanel = $("#products");
+                productsPanel.append("<div>");
+                productsPanel.append("<p>Id: " + product.id + "</p>");
+                productsPanel.append("<p>Name: " + product.name + "</p>");
+                productsPanel.append("<p>Price: " + product.price + "</p>");
+                productsPanel.append("</div>");
+            });
+
+
+        });
+
+
+
+        $.get("http://localhost:9010/products")
+            .then((result) => {
+                console.log(result);
+                var productsPanel = $("#products");
+                for (let product of result) {
+                    productsPanel.append("<div>");
+                    productsPanel.append("<p>Id: " + product.id + "</p>");
+                    productsPanel.append("<p>Name: " + product.name + "</p>");
+                    productsPanel.append("<p>Price: " + product.price + "</p>");
+                    productsPanel.append("</div>");
+                }
+            }, (error) => {
+                console.log(error);
+            });
+    })
+
+</script>

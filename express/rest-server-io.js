@@ -1,9 +1,24 @@
 const fs = require('fs');
-const express = require('express');
 const bodyParser = require('body-parser');
 var cors = require('cors');
+
 //Create the Server
+
+const express = require('express');
+const io = require('socket.io');
+const http = require('http');
+
 const app = express();
+const server = http.createServer(app);
+const socketio = io(server);
+
+const allSockets = [];
+socketio.on("connection", (socket) => {
+
+    console.log("The client connected");
+    allSockets.push(socket);
+    socket.send("hello");
+})
 
 const products = [];
 
@@ -87,8 +102,13 @@ app.post("/products", (req, resp) => {
 
         if (index === -1) {
             products.push(product);
+
+            for (const socket of allSockets) {
+                socket.emit("productAdded", product);
+            }
+
             resp.status(201).end()
-            //resp.json(product);
+            
         }
         else{
             resp.status(400).end();
@@ -121,12 +141,8 @@ app.delete("/products/:id", (req, resp) => {
 });
 
 
-
-
-
-
 //Listen/ Start the server
 const PORT = 9010;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`REST API started at port: ${PORT} on process-id: ${process.pid}`)
 })
